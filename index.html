@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0B1F3A" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <title>Fox Stable</title>
+
+  <style>
+    html, body { height:100%; margin:0; }
+    body{
+      font-family: Arial, sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background: linear-gradient(135deg, #0B1F3A 0%, #1E3A8A 45%, #ffffff 100%);
+      background-attachment: fixed;
+    }
+    .card{
+      width:min(520px, 100%);
+      background:#fff;
+      border:1px solid rgba(0,0,0,0.08);
+      border-radius:16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+      padding:18px;
+    }
+    .title{
+      font-size:18px;
+      font-weight:800;
+      color:#0B1F3A;
+      margin:0 0 6px;
+      letter-spacing:0.2px;
+    }
+    .sub{
+      margin:0 0 14px;
+      color:#334155;
+      font-size:13px;
+      line-height:1.35;
+    }
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; }
+    button{
+      cursor:pointer;
+      border:none;
+      background:#0B1F3A;
+      color:#F97316;
+      font-weight:800;
+      padding:12px 14px;
+      border-radius:12px;
+      transition: all .15s ease;
+    }
+    button:hover{ background:#1E3A8A; color:#ffffff; }
+    button.secondary{
+      background:#ffffff;
+      color:#0B1F3A;
+      border:1px solid #0B1F3A;
+    }
+    .small{
+      margin-top:10px;
+      font-size:12px;
+      color:#475569;
+      opacity:.95;
+    }
+    .badge{
+      display:inline-block;
+      font-size:11px;
+      font-weight:700;
+      padding:4px 8px;
+      border-radius:999px;
+      background:rgba(249,115,22,0.14);
+      color:#9a3412;
+      margin-left:8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="title">Fox Corner <span class="badge">App</span></div>
+    <p class="sub">
+      Öppnar ditt stall-system. Om du vill ha den som en riktig app:
+      installera via “Installera” (Chrome/Android) eller “Lägg till på hemskärmen” (iPhone).
+    </p>
+
+    <div class="btnRow">
+      <button id="openBtn" type="button">Öppna Stall App</button>
+      <button id="installBtn" class="secondary" type="button" style="display:none;">Installera</button>
+    </div>
+
+    <div class="small" id="status"></div>
+  </div>
+
+  <script>
+    const APP_URL = "https://script.google.com/macros/s/AKfycbzPErDAkXt8M7B1pmx9gLIBRNG-QdoYjFQcYU_VyHZ1kfQ5Eb95aPGElz_5s3KUi8LINA/exec";
+
+    // Open app
+    document.getElementById("openBtn").addEventListener("click", () => {
+      window.location.href = APP_URL;
+    });
+
+    // Service worker (for installability / basic caching of wrapper)
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    // Install prompt (Chrome/Edge/Android)
+    let deferredPrompt = null;
+    const installBtn = document.getElementById("installBtn");
+    const status = document.getElementById("status");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = "inline-block";
+      status.textContent = "Du kan installera appen här.";
+    });
+
+    installBtn.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.style.display = "none";
+      status.textContent = "Installerad (om du godkände prompten).";
+    });
+
+    // Optional: auto-redirect after a short delay (uncomment if you want)
+    // setTimeout(() => window.location.href = APP_URL, 700);
+  </script>
+</body>
+</html>
