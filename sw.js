@@ -1,4 +1,4 @@
-const CACHE_NAME = "FSM-wrapper-v1";
+const CACHE_NAME = "FSM-wrapper-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -25,3 +25,4 @@ self.addEventListener("fetch", (event) => {
     caches.match(req).then(cached => cached || fetch(req))
   );
 });
+
